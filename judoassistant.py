@@ -1,3 +1,5 @@
+#!/bin/python3
+
 import sys
 import configparser
 from sqlalchemy import Table, MetaData, create_engine
