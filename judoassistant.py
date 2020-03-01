@@ -20,7 +20,9 @@ def user_rm(db, identifier):
     print("Removed {} user(s) from the database".format(result.rowcount))
 
 def user_add(db, email, password):
-    password_hash = str(bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt()))
+    password_hash = str(bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt()), encoding="utf-8")
+    # password_hash = "$2a$12$1rHate3ZkEnXS89xkCb5leW.bmvefC4Zj9JfZNnwe45GjZj7Cu7na"
+    # print(len(password_hash))
     sql = text('insert into users (email, password_hash) values (:email, :password_hash)')
     result = db.execute(sql, email = email, password_hash = password_hash)
 
