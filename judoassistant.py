@@ -2,36 +2,40 @@
 
 import sys
 import configparser
-from sqlalchemy import Table, MetaData, create_engine
+import bcrypt
+from sqlalchemy import Table, MetaData, create_engine, text
 
 # users ls
 # users rm
 # users add
 def user_ls(db):
-    result = db.execute("select * from users")
+    result = db.execute('select * from users')
     print("Database contains {} user(s)".format(result.rowcount))
     for r in result:
-        print("id={}, email={}".format(r[0], r[1]))
+        print("id={}, email={}, password_hash={}".format(r[0], r[1], r[2]))
 
 def user_rm(db, identifier):
-    result = db.execute("delete from users WHERE id={}".format(identifier))
+    sql = text('delete from users WHERE id = :identifier')
+    result = db.execute(sql, identifier=identifier)
     print("Removed {} user(s) from the database".format(result.rowcount))
 
 def user_add(db, email, password):
-    pass
-    # has
-    # result = db.execute("delete from users WHERE id={}".format(identifier))
-    # if result.rowcount == 0:
-    #     print("Failed to add users to database")
+    password_hash = str(bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt()))
+    sql = text('insert into users (email, password_hash) values (:email, :password_hash)')
+    result = db.execute(sql, email = email, password_hash = password_hash)
+
+    if result.rowcount == 0:
+        print("Failed to add users to database")
 
 def tournament_ls(db):
-    result = db.execute("select * from tournaments")
+    result = db.execute('select * from tournaments')
     print("Database contains {} tournament(s)".format(result.rowcount))
     for r in result:
         print("id={}, owner={}, web_name={}".format(r[0], r[1], r[3]))
 
 def tournament_rm(db, identifier):
-    result = db.execute("delete from tournaments WHERE id={}".format(identifier))
+    sql = text('delete from tournaments WHERE id=:identifier')
+    result = db.execute(sql, identifier=identifier)
     print("Removed {} tournament(s) from the database".format(result.rowcount))
 
 config = configparser.ConfigParser()
@@ -47,8 +51,8 @@ elif module == "users" and command == "rm":
     identifier = int(sys.argv[3])
     user_rm(db, identifier)
 elif module == "users" and command == "add":
-    email = sys.argv[3]
-    password = sys.argv[4]
+    email = str(sys.argv[3])
+    password = str(sys.argv[4])
     user_add(db, email, password)
 if module == "tournaments" and command == "ls":
     tournament_ls(db)
