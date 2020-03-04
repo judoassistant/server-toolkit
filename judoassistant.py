@@ -33,7 +33,7 @@ def tournament_ls(db):
     result = db.execute('select * from tournaments')
     print("Database contains {} tournament(s)".format(result.rowcount))
     for r in result:
-        print("id={}, owner={}, web_name={}".format(r[0], r[1], r[3]))
+        print("id={}, owner={}, web_name={}, name={}, location={}, date={}".format(r[0], r[1], r[3], r[6], r[7], r[8]))
 
 def tournament_rm(db, identifier):
     sql = text('delete from tournaments WHERE id=:identifier')
