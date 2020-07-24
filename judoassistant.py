@@ -4,6 +4,7 @@ import argparse
 import bcrypt
 import configparser
 import sys
+import os
 from sqlalchemy import Table, MetaData, create_engine, text
 
 def user_remove(db, args):
@@ -48,7 +49,6 @@ def __handle(db, args):
     pass
 
 parser = argparse.ArgumentParser(prog="judoassistant.py")
-parser.add_argument('connect_string', help="sqlalchemy connect string")
 parser.set_defaults(func=__handle)
 
 subparsers = parser.add_subparsers()
@@ -83,6 +83,11 @@ tournament_list_parser.set_defaults(func=tournament_list)
 # Parse args, connect to db and run commands
 args = parser.parse_args()
 
-db = create_engine(args.connect_string)
+database_url = os.environ.get('DATABASE_URL')
+if database_url is None:
+    print("Please set the DATABASE_URL environment variable")
+    sys.exit()
+
+db = create_engine(database_url)
 
 args.func(db, args)
